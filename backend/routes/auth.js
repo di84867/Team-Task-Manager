@@ -57,7 +57,12 @@ router.post('/login', async (req, res) => {
         res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
     } catch (err) {
         console.error("Login Error:", err);
-        res.status(500).json({ error: err.message });
+        let errorMessage = err.message;
+        if (err.message.includes("secretOrPrivateKey must have a value")) {
+            errorMessage = "Server configuration error: JWT_SECRET is missing.";
+        }
+        res.status(500).json({ error: errorMessage });
+
     }
 });
 

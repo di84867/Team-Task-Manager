@@ -6,6 +6,7 @@
   "engines": {
     "node": ">=20"
   },
+
   "scripts": {
     "start": "node backend/server.js",
     "build": "npm run install-all && cd frontend && npm run build",
