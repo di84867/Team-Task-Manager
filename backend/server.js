@@ -36,20 +36,26 @@ app.get('*', (req, res) => {
 });
 
 // Database Connection
-const mongoURL = process.env.MONGO_URL;
-if (!mongoURL) {
-    console.error("❌ MONGO_URL is missing in environment variables");
+const MONGO_URL = process.env.MONGO_URL;
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!MONGO_URL) {
+    console.error("❌ CRITICAL: MONGO_URL is missing in environment variables!");
 } else {
-    // Remove trailing semicolon if present (common mistake)
-    const cleanMongoURL = mongoURL.replace(/;$/, '');
+    const cleanMongoURL = MONGO_URL.replace(/;$/, '');
     mongoose.connect(cleanMongoURL)
         .then(() => console.log("✅ MongoDB Connected Successfully!"))
         .catch(err => console.error("❌ MongoDB Connection Error:", err));
 }
 
+if (!JWT_SECRET) {
+    console.error("⚠️  WARNING: JWT_SECRET is missing! Logins will fail with a 500 error.");
+}
+
 // Railway automatically provides a PORT environment variable
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
+    console.log(`📡 URL: http://0.0.0.0:${PORT}`);
 });
 
