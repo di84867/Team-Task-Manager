@@ -53,6 +53,11 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
+        if (user.isLocked) {
+            console.log("❌ Account is locked");
+            return res.status(403).json({ message: "Account is locked. Please contact administrator." });
+        }
+
         const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
         res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
     } catch (err) {
@@ -67,10 +72,46 @@ router.post('/login', async (req, res) => {
 });
 
 // Get All Users (Admin Only) - To list members for task assignment
-router.get('/users', protect, async (req, res) => {
+router.get('/users', protect, adminOnly, async (req, res) => {
     try {
-        const users = await User.find({}, 'name email role');
+        const users = await User.find({}, 'name email role isLocked');
         res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update User (Admin Only)
+router.put('/admin/update-user/:id', protect, adminOnly, async (req, res) => {
+    try {
+        const { name, email, password, role, isLocked } = req.body;
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.role = role || user.role;
+        if (isLocked !== undefined) user.isLocked = isLocked;
+        
+        if (password) {
+            user.password = password;
+        }
+
+        await user.save();
+        res.json({ message: "User updated successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Delete User (Admin Only)
+router.delete('/admin/delete-user/:id', protect, adminOnly, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: "User not found" });
+        
+        await user.deleteOne();
+        res.json({ message: "User deleted successfully" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

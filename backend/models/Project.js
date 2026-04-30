@@ -15,7 +15,11 @@ const ProjectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User', 
         required: [true, 'Project must have an owner'] 
-    }
+    },
+    members: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Project', ProjectSchema);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, CheckCircle, Clock, Layout, Users, LogOut, Briefcase, UserPlus, Menu, X, AlertCircle, Sun, Moon } from 'lucide-react';
+import { Plus, CheckCircle, Clock, Layout, Users, LogOut, Briefcase, UserPlus, Menu, X, AlertCircle, Sun, Moon, Edit2, Trash2, Lock, Unlock, Settings, UserMinus } from 'lucide-react';
 import API from '../api/axios';
 
 const Dashboard = () => {
@@ -23,6 +23,10 @@ const Dashboard = () => {
     const [newTask, setNewTask] = useState({ title: '', description: '', project: '', assignedTo: '', dueDate: '' });
     const [newProject, setNewProject] = useState({ title: '', description: '' });
     const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'Member' });
+    const [editingUser, setEditingUser] = useState(null);
+    const [selectedProject, setSelectedProject] = useState(null);
+    const [showEditUserModal, setShowEditUserModal] = useState(false);
+    const [showProjectMemberModal, setShowProjectMemberModal] = useState(false);
 
     useEffect(() => {
         if (!user) {
@@ -82,6 +86,45 @@ const Dashboard = () => {
         } catch (err) { alert(err.response?.data?.message); }
     };
 
+    const handleUpdateUser = async (e) => {
+        e.preventDefault();
+        try {
+            await API.put(`/auth/admin/update-user/${editingUser._id}`, editingUser);
+            setShowEditUserModal(false);
+            fetchData();
+            alert('User Updated Successfully');
+        } catch (err) { alert(err.response?.data?.message); }
+    };
+
+    const handleDeleteUser = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this user?')) return;
+        try {
+            await API.delete(`/auth/admin/delete-user/${id}`);
+            fetchData();
+        } catch (err) { alert(err.response?.data?.message); }
+    };
+
+    const toggleLockUser = async (userToLock) => {
+        try {
+            await API.put(`/auth/admin/update-user/${userToLock._id}`, { isLocked: !userToLock.isLocked });
+            fetchData();
+        } catch (err) { alert(err.response?.data?.message); }
+    };
+
+    const handleAddMemberToProject = async (projectId, userId) => {
+        try {
+            await API.post(`/projects/${projectId}/add-member`, { userId });
+            fetchData();
+        } catch (err) { alert(err.response?.data?.message); }
+    };
+
+    const handleRemoveMemberFromProject = async (projectId, userId) => {
+        try {
+            await API.post(`/projects/${projectId}/remove-member`, { userId });
+            fetchData();
+        } catch (err) { alert(err.response?.data?.message); }
+    };
+
     const updateTaskStatus = async (id, status) => {
         try {
             await API.put(`/tasks/${id}/status`, { status });
@@ -126,12 +169,20 @@ const Dashboard = () => {
                         <Layout className="w-5 h-5" /> Dashboard
                     </button>
                     {user?.role === 'Admin' && (
-                        <button 
-                            onClick={() => { setActiveTab('team'); setIsSidebarOpen(false); }}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition ${activeTab === 'team' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800'}`}
-                        >
-                            <Users className="w-5 h-5" /> Team Members
-                        </button>
+                        <>
+                            <button 
+                                onClick={() => { setActiveTab('team'); setIsSidebarOpen(false); }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition ${activeTab === 'team' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800'}`}
+                            >
+                                <Users className="w-5 h-5" /> Team Members
+                            </button>
+                            <button 
+                                onClick={() => { setActiveTab('projects'); setIsSidebarOpen(false); }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition ${activeTab === 'projects' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800'}`}
+                            >
+                                <Briefcase className="w-5 h-5" /> Manage Projects
+                            </button>
+                        </>
                     )}
                 </nav>
                 <div className="p-4 border-t border-gray-100 dark:border-slate-800">
@@ -250,14 +301,16 @@ const Dashboard = () => {
                                 </div>
                             </div>
                         </>
-                    ) : (
+                    ) : activeTab === 'team' ? (
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden overflow-x-auto transition-colors">
-                            <table className="w-full text-left min-w-[500px]">
+                            <table className="w-full text-left min-w-[700px]">
                                 <thead className="bg-gray-50 dark:bg-slate-800/50 text-gray-400 text-[10px] uppercase font-black tracking-widest">
                                     <tr>
                                         <th className="px-6 py-4">Name</th>
                                         <th className="px-6 py-4">Email</th>
                                         <th className="px-6 py-4">Role</th>
+                                        <th className="px-6 py-4">Status</th>
+                                        <th className="px-6 py-4">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
@@ -270,16 +323,56 @@ const Dashboard = () => {
                                                     {u.role}
                                                 </span>
                                             </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.isLocked ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-600'}`}>
+                                                    {u.isLocked ? 'Locked' : 'Active'}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => { setEditingUser(u); setShowEditUserModal(true); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"><Edit2 className="w-4 h-4" /></button>
+                                                    <button onClick={() => toggleLockUser(u)} className={`p-2 ${u.isLocked ? 'text-green-600 hover:bg-green-50' : 'text-orange-600 hover:bg-orange-50'} rounded-lg transition`}>
+                                                        {u.isLocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                                                    </button>
+                                                    <button onClick={() => handleDeleteUser(u._id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"><Trash2 className="w-4 h-4" /></button>
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
-                    )}
+                    ) : activeTab === 'projects' ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {projects.map(project => (
+                                <div key={project._id} className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-200 dark:border-slate-800 shadow-sm hover:shadow-md transition">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h4 className="text-xl font-bold text-gray-800 dark:text-slate-100">{project.title}</h4>
+                                        <button onClick={() => { setSelectedProject(project); setShowProjectMemberModal(true); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><Settings className="w-5 h-5" /></button>
+                                    </div>
+                                    <p className="text-gray-500 dark:text-slate-400 text-sm mb-4 line-clamp-2">{project.description}</p>
+                                    <div className="flex -space-x-2 overflow-hidden">
+                                        {project.members?.map(m => (
+                                            <div key={m._id} title={m.name} className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-900 bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[10px] font-bold text-blue-600">
+                                                {m.name.charAt(0)}
+                                            </div>
+                                        ))}
+                                        {(!project.members || project.members.length === 0) && (
+                                            <span className="text-xs text-gray-400 italic">No members assigned</span>
+                                        )}
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-slate-800 flex justify-between items-center text-xs text-gray-400">
+                                        <span>Owner: {project.owner?.name}</span>
+                                        <span>{project.members?.length || 0} Members</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : null}
                 </main>
             </div>
 
-            {/* Modals with Dark Support */}
+            {/* Modals */}
             {showProjectModal && (
                 <Modal title="Create New Project" close={() => setShowProjectModal(false)}>
                     <form onSubmit={handleCreateProject} className="space-y-4">
@@ -320,6 +413,50 @@ const Dashboard = () => {
                         </select>
                         <button className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold shadow-lg shadow-blue-100 dark:shadow-none transition hover:scale-[1.02]">Create User</button>
                     </form>
+                </Modal>
+            )}
+
+            {showEditUserModal && editingUser && (
+                <Modal title="Edit Team Member" close={() => setShowEditUserModal(false)}>
+                    <form onSubmit={handleUpdateUser} className="space-y-4">
+                        <input type="text" value={editingUser.name} required className="modal-input" onChange={(e) => setEditingUser({...editingUser, name: e.target.value})} />
+                        <input type="email" value={editingUser.email} required className="modal-input" onChange={(e) => setEditingUser({...editingUser, email: e.target.value})} />
+                        <input type="password" placeholder="New Password (leave blank to keep current)" className="modal-input" onChange={(e) => setEditingUser({...editingUser, password: e.target.value})} />
+                        <select value={editingUser.role} className="modal-input" onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}>
+                            <option value="Member">Member</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        <button className="w-full bg-blue-600 text-white p-3 rounded-xl font-bold transition hover:scale-[1.02]">Update User</button>
+                    </form>
+                </Modal>
+            )}
+
+            {showProjectMemberModal && selectedProject && (
+                <Modal title={`Manage Members: ${selectedProject.title}`} close={() => setShowProjectMemberModal(false)}>
+                    <div className="space-y-6">
+                        <div>
+                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Current Members</h4>
+                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                                {selectedProject.members?.map(m => (
+                                    <div key={m._id} className="flex justify-between items-center bg-gray-50 dark:bg-slate-800 p-3 rounded-xl">
+                                        <span className="font-bold text-gray-700 dark:text-slate-200">{m.name}</span>
+                                        <button onClick={() => handleRemoveMemberFromProject(selectedProject._id, m._id)} className="text-red-500 hover:bg-red-50 p-1 rounded-lg"><UserMinus className="w-4 h-4" /></button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div>
+                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3">Add Member</h4>
+                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                                {users.filter(u => !selectedProject.members?.some(m => m._id === u._id)).map(u => (
+                                    <div key={u._id} className="flex justify-between items-center bg-gray-50 dark:bg-slate-800 p-3 rounded-xl">
+                                        <span className="font-bold text-gray-700 dark:text-slate-200">{u.name}</span>
+                                        <button onClick={() => handleAddMemberToProject(selectedProject._id, u._id)} className="text-blue-600 hover:bg-blue-50 p-1 rounded-lg"><UserPlus className="w-4 h-4" /></button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </Modal>
             )}
         </div>

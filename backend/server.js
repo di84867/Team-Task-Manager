@@ -3,8 +3,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
-// Load environment variables from backend/.env if available
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+// Load environment variables
+require('dotenv').config(); // Looks in root if started from root
+require('dotenv').config({ path: path.join(__dirname, '.env') }); // Looks in backend/
+require('dotenv').config({ path: path.join(__dirname, '../.env') }); // Explicitly check root from backend/
 
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/project');
