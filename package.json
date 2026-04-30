@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Full-stack Task Manager for Railway",
   "main": "backend/server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node backend/server.js",
     "build": "npm run install-all && cd frontend && npm run build",
