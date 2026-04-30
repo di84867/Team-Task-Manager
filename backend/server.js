@@ -27,7 +27,7 @@ const frontendPath = path.join(__dirname, '../frontend/dist');
 app.use(express.static(frontendPath));
 
 // Catch-all: For any request that doesn't match an API route, serve the React app
-app.get('*', (req, res) => {
+app.use((req, res) => {
     // If it's an API route that wasn't found, don't serve index.html
     if (req.path.startsWith('/api')) {
         return res.status(404).json({ message: 'API Route Not Found' });
