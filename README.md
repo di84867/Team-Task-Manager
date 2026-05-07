@@ -1,42 +1,63 @@
-# 🚀 Taskly - Team Task Manager
+<div align="center">
+  <img src="assets/banner.png" alt="Taskly Banner" width="100%">
 
-Taskly is a premium, full-stack task management application designed for modern teams. It features a robust **Role-Based Access Control (RBAC)** system, project management, real-time task tracking, and a sleek, responsive UI with **Dark/Light mode** support.
+  # 🚀 Taskly — Team Task Manager
+
+  [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+  [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+  [![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+  [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+
+  **The ultimate full-stack solution for modern team collaboration and real-time task management.**
+</div>
+
+---
+
+## 🌟 Overview
+
+Taskly is a premium, high-performance task management application built for teams that value speed and efficiency. With a robust **Role-Based Access Control (RBAC)** system, Taskly ensures that project managers and team members stay synchronized in a beautiful, responsive environment.
+
+<div align="center">
+  <img src="assets/features.png" alt="Taskly Features" width="80%">
+</div>
 
 ---
 
 ## ✨ Key Features
 
-- 🔐 **Secure Authentication**: JWT-based auth with password hashing using Bcrypt.
-- 👥 **Role-Based Access Control**:
-  - **Admin**: Full control over projects, team members, and task assignments.
-  - **Member**: Access to personal tasks and status tracking.
-- 📁 **Project Management**: Create and organize tasks by projects.
-- 📊 **Dynamic Dashboard**:
-  - Track tasks by status (Pending, In Progress, Completed).
-  - 🔥 **Overdue Alerts**: Automatic detection of tasks past their deadline.
-- 🌓 **Premium Dark Mode**: Seamless toggle between light and dark themes (Tailwind CSS v4).
-- 📱 **Fully Responsive**: Optimized for mobile, tablet, and desktop.
-- 🚂 **Railway Ready**: Configured for instant deployment as a single unified app.
+- 🔐 **Secure Authentication**: Enterprise-grade JWT-based authentication with Bcrypt hashing.
+- 👥 **Role-Based Access Control (RBAC)**:
+  - **Admin**: Oversee projects, manage team members, and assign high-priority tasks.
+  - **Member**: Track assigned tasks and update progress in real-time.
+- 📁 **Project Scoping**: Organize work by projects for better focus and resource allocation.
+- 📊 **Intelligent Dashboard**:
+  - Live status tracking (Pending, In Progress, Completed).
+  - 🔥 **Smart Alerts**: Never miss a deadline with automated overdue task detection.
+- 🌓 **Premium Dark Mode**: A sleek, eye-pleasing dark theme built with Tailwind CSS v4.
+- 📱 **Adaptive UI**: Seamless experience across mobile, tablet, and ultra-wide desktops.
+- 🚂 **Cloud Ready**: Optimized for single-click deployment on platforms like Railway.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React (Vite), Tailwind CSS v4, Lucide React Icons.
-- **Backend**: Node.js, Express.
-- **Database**: MongoDB (Mongoose).
-- **Deployment**: Railway / Render / Vercel.
+| Frontend | Backend | Database | Deployment |
+| :--- | :--- | :--- | :--- |
+| **React (Vite)** | **Node.js** | **MongoDB** | **Railway** |
+| Tailwind CSS v4 | Express.js | Mongoose | Vercel / Render |
+| Lucide Icons | JWT / Bcrypt | Atlas | |
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Prerequisites
-- Node.js installed on your machine.
-- A MongoDB Atlas connection string.
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) Account
 
-### 2. Environment Setup
-Create a `.env` file in the `backend` folder:
+### 2. Environment Configuration
+Create a `.env` file in the `backend` directory:
 ```env
 MONGO_URL=your_mongodb_connection_string
 PORT=5000
@@ -44,48 +65,47 @@ JWT_SECRET=your_secret_key
 ```
 
 ### 3. Installation
-
-**Install all dependencies:**
+Get up and running with a single command:
 ```bash
 npm run install-all
 ```
 
-### 4. Database Seeding (Create Admin)
-Before logging in, you must create the main administrator:
+### 4. Initialize Admin Account
+Seed the database with an initial administrator account:
 ```bash
 cd backend
 node seedAdmin.js
 ```
-*Default Credentials:*
-- **Email**: `administrator@taskly.com`
-- **Password**: `Navdivsa.,123%`
+> [!NOTE]
+> **Default Admin Credentials:**
+> - **Email**: `administrator@taskly.com`
+> - **Password**: `Navdivsa.,123%`
 
-### 5. Running the App
-
-**Start Backend:**
+### 5. Launch Development Servers
+**Start the Engine:**
 ```bash
-cd backend
+# In backend/
 node server.js
-```
 
-**Start Frontend:**
-```bash
-cd frontend
+# In frontend/
 npm run dev
 ```
 
 ---
 
-## 🚂 Deployment to Railway
+## 🚂 Deployment
 
-This project is configured to run as a single app on Railway.
+This project is pre-configured for seamless deployment on **Railway**.
 
-1. Push this repository to GitHub.
-2. Connect the repo to Railway.
-3. Add your environment variables (`MONGO_URL`, `JWT_SECRET`) in the Railway dashboard.
-4. Railway will automatically run the build script and deploy the app.
+1. **Fork/Clone** the repository.
+2. **Connect** to Railway via the dashboard.
+3. **Configure** environment variables (`MONGO_URL`, `JWT_SECRET`).
+4. **Deploy** — Taskly will handle the build and startup automatically.
 
 ---
 
-## 📝 License
-This project is open-source and available under the [MIT License](LICENSE).
+<div align="center">
+  Built with ❤️ for productive teams.
+  <br>
+  Released under the [MIT License](LICENSE).
+</div>
